@@ -44,6 +44,9 @@ func runGetArticle(id string) error {
 	if err != nil {
 		return err
 	}
+	if jsonOutput {
+		return writeJSON(article)
+	}
 	format.Article(os.Stdout, article)
 	return nil
 }
@@ -56,6 +59,9 @@ func runSearchArticles(query string, top int) error {
 	articles, err := youtrack.SearchArticles(c, query, top)
 	if err != nil {
 		return err
+	}
+	if jsonOutput {
+		return writeJSON(articles)
 	}
 	format.ArticleList(os.Stdout, articles)
 	return nil
