@@ -192,10 +192,12 @@ func DecodeCustomFields(raw []json.RawMessage) []CustomField {
 			value = decodeSingleUser(r.Value)
 		case "MultiUserIssueCustomField":
 			value = decodeMultiUser(r.Value)
-		case "SingleVersionIssueCustomField":
+		case "SingleVersionIssueCustomField", "SingleBuildIssueCustomField", "SingleOwnedIssueCustomField", "SingleGroupIssueCustomField":
 			value = decodeSingleEnum(r.Value)
 		case "MultiVersionIssueCustomField":
 			value = decodeMultiVersion(r.Value)
+		case "MultiBuildIssueCustomField", "MultiOwnedIssueCustomField", "MultiGroupIssueCustomField":
+			value = decodeMultiEnum(r.Value)
 		case "PeriodIssueCustomField":
 			value = decodePeriod(r.Value)
 		case "TextIssueCustomField":

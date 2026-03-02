@@ -215,6 +215,75 @@ func TestDecodeCustomFields_MultiVersion_Null(t *testing.T) {
 	}
 }
 
+func TestDecodeCustomFields_SingleBuild(t *testing.T) {
+	raw := encodeFields(t, []map[string]any{
+		field("SingleBuildIssueCustomField", "Fix build", map[string]any{"name": "build-42"}),
+	})
+	got := DecodeCustomFields(raw)
+	if len(got) != 1 || got[0].Value != "build-42" {
+		t.Errorf("unexpected: %+v", got)
+	}
+}
+
+func TestDecodeCustomFields_MultiBuild(t *testing.T) {
+	raw := encodeFields(t, []map[string]any{
+		field("MultiBuildIssueCustomField", "Affected builds", []map[string]any{
+			{"name": "build-1"},
+			{"name": "build-2"},
+		}),
+	})
+	got := DecodeCustomFields(raw)
+	if len(got) != 1 || got[0].Value != "build-1, build-2" {
+		t.Errorf("unexpected: %+v", got)
+	}
+}
+
+func TestDecodeCustomFields_SingleOwned(t *testing.T) {
+	raw := encodeFields(t, []map[string]any{
+		field("SingleOwnedIssueCustomField", "Component", map[string]any{"name": "Backend"}),
+	})
+	got := DecodeCustomFields(raw)
+	if len(got) != 1 || got[0].Value != "Backend" {
+		t.Errorf("unexpected: %+v", got)
+	}
+}
+
+func TestDecodeCustomFields_MultiOwned(t *testing.T) {
+	raw := encodeFields(t, []map[string]any{
+		field("MultiOwnedIssueCustomField", "Components", []map[string]any{
+			{"name": "Backend"},
+			{"name": "Frontend"},
+		}),
+	})
+	got := DecodeCustomFields(raw)
+	if len(got) != 1 || got[0].Value != "Backend, Frontend" {
+		t.Errorf("unexpected: %+v", got)
+	}
+}
+
+func TestDecodeCustomFields_SingleGroup(t *testing.T) {
+	raw := encodeFields(t, []map[string]any{
+		field("SingleGroupIssueCustomField", "Team", map[string]any{"name": "Platform"}),
+	})
+	got := DecodeCustomFields(raw)
+	if len(got) != 1 || got[0].Value != "Platform" {
+		t.Errorf("unexpected: %+v", got)
+	}
+}
+
+func TestDecodeCustomFields_MultiGroup(t *testing.T) {
+	raw := encodeFields(t, []map[string]any{
+		field("MultiGroupIssueCustomField", "Teams", []map[string]any{
+			{"name": "Platform"},
+			{"name": "Infra"},
+		}),
+	})
+	got := DecodeCustomFields(raw)
+	if len(got) != 1 || got[0].Value != "Platform, Infra" {
+		t.Errorf("unexpected: %+v", got)
+	}
+}
+
 func TestDecodeCustomFields_Period(t *testing.T) {
 	raw := encodeFields(t, []map[string]any{
 		field("PeriodIssueCustomField", "Spent time", map[string]any{"presentation": "2w 3d"}),
