@@ -31,7 +31,7 @@ cmd/ → internal/format/   (renders youtrack types to io.Writer)
 
 ## Configuration
 
-Priority: flag > env var > config file (`~/.config/youtrack-cli/config.json`).
+Priority: flag > env var > config file (`~/.config/youtrack/config.json`).
 
 ```json
 { "url": "https://your-instance.youtrack.cloud", "token": "perm:..." }

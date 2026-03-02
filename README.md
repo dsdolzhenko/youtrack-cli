@@ -31,7 +31,7 @@ Configuration is resolved in priority order: **flag > environment variable > con
 | Server URL | `--url`   | `YOUTRACK_URL`       | `url`           |
 | API token  | `--token` | `YOUTRACK_TOKEN`     | `token`         |
 
-Config file location: `~/.config/youtrack-cli/config.json`
+Config file location: `~/.config/youtrack/config.json`
 
 ```json
 {

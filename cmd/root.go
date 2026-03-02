@@ -73,7 +73,7 @@ func readConfigFile() map[string]string {
 	if err != nil {
 		return nil
 	}
-	path := filepath.Join(home, ".config", "youtrack-cli", "config.json")
+	path := filepath.Join(home, ".config", "youtrack", "config.json")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil

@@ -22,7 +22,7 @@ yt articles search "<query>" [--top N]  # Search articles
 
 Priority: flag > env var > config file.
 
-Config file: `~/.config/youtrack-cli/config.json`
+Config file: `~/.config/youtrack/config.json`
 ```json
 { "url": "https://your-instance.youtrack.cloud", "token": "perm:..." }
 ```
