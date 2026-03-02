@@ -32,6 +32,22 @@ Config file location: `~/.config/youtrack-cli/config.json`
 }
 ```
 
+## Claude Code integration
+
+`yt` can be used by Claude Code agents in any project. Run once after installing:
+
+```sh
+yt setup
+```
+
+This installs a skill into `~/.claude/skills/youtrack/`. After that, you can ask Claude things like:
+
+- "look up issue SP-42"
+- "search YouTrack for open bugs assigned to me"
+- "/youtrack project: SP State: Open"
+
+Claude will invoke `yt` automatically and summarise the results.
+
 ## Commands
 
 ### `yt issue <ID>`
