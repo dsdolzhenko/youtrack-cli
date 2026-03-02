@@ -12,5 +12,6 @@ var issueCmd = &cobra.Command{
 }
 
 func init() {
+	issueCmd.Flags().BoolVar(&issueShowComments, "comments", false, "Show issue comments")
 	rootCmd.AddCommand(issueCmd)
 }

@@ -69,6 +69,24 @@ func Issue(w io.Writer, issue *youtrack.Issue) {
 	}
 }
 
+func IssueComments(w io.Writer, comments []youtrack.Comment) {
+	if len(comments) == 0 {
+		fmt.Fprintf(w, "\nNo comments.\n")
+		return
+	}
+	fmt.Fprintf(w, "\nComments (%d):\n", len(comments))
+	sep := separator(terminalWidth())
+	for _, c := range comments {
+		fmt.Fprintf(w, "%s\n", sep)
+		fmt.Fprintf(w, "%s  %s\n", c.Author.Login, formatMillis(c.Created))
+		fmt.Fprintf(w, "\n")
+		for _, line := range strings.Split(c.Text, "\n") {
+			fmt.Fprintf(w, "  %s\n", line)
+		}
+	}
+	fmt.Fprintf(w, "%s\n", sep)
+}
+
 func customFieldValue(issue youtrack.Issue, name string) string {
 	for _, cf := range issue.CustomFields {
 		if cf.Name == name {

@@ -256,6 +256,92 @@ func TestSearchIssues_Empty(t *testing.T) {
 	}
 }
 
+const commentsFixture = `[
+	{
+		"id": "c1",
+		"text": "First comment text.",
+		"created": 1730467920000,
+		"author": {"login": "alice", "fullName": "Alice Example"}
+	},
+	{
+		"id": "c2",
+		"text": "Second comment text.",
+		"created": 1730554515000,
+		"author": {"login": "bob", "fullName": "Bob Example"}
+	}
+]`
+
+func TestGetComments(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/issues/SP-42/comments" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		if r.URL.Query().Get("fields") == "" {
+			t.Error("fields query param missing")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(commentsFixture))
+	}))
+	defer srv.Close()
+
+	c := newTestClient(t, srv.URL)
+	comments, err := GetComments(c, "SP-42")
+	if err != nil {
+		t.Fatalf("GetComments returned error: %v", err)
+	}
+
+	if len(comments) != 2 {
+		t.Fatalf("len(comments) = %d, want 2", len(comments))
+	}
+	if comments[0].ID != "c1" {
+		t.Errorf("comments[0].ID = %q, want %q", comments[0].ID, "c1")
+	}
+	if comments[0].Text != "First comment text." {
+		t.Errorf("comments[0].Text = %q", comments[0].Text)
+	}
+	if comments[0].Created != 1730467920000 {
+		t.Errorf("comments[0].Created = %d, want 1730467920000", comments[0].Created)
+	}
+	if comments[0].Author.Login != "alice" {
+		t.Errorf("comments[0].Author.Login = %q, want alice", comments[0].Author.Login)
+	}
+	if comments[1].ID != "c2" || comments[1].Author.Login != "bob" {
+		t.Errorf("comments[1] = %+v", comments[1])
+	}
+}
+
+func TestGetComments_Empty(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`[]`))
+	}))
+	defer srv.Close()
+
+	c := newTestClient(t, srv.URL)
+	comments, err := GetComments(c, "SP-1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(comments) != 0 {
+		t.Errorf("expected empty slice, got %d comments", len(comments))
+	}
+}
+
+func TestGetComments_HTTPError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer srv.Close()
+
+	c := newTestClient(t, srv.URL)
+	_, err := GetComments(c, "SP-99")
+	if err == nil {
+		t.Fatal("expected error for 404, got nil")
+	}
+}
+
 func TestGetIssue_NoCustomFields(t *testing.T) {
 	body, _ := json.Marshal(map[string]any{
 		"idReadable":   "SP-99",

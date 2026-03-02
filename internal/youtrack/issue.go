@@ -13,6 +13,30 @@ type User struct {
 	FullName string `json:"fullName"`
 }
 
+type Comment struct {
+	ID      string `json:"id"`
+	Text    string `json:"text"`
+	Created int64  `json:"created"`
+	Author  User   `json:"author"`
+}
+
+const commentFields = "id,text,created,author(login,fullName)"
+
+func GetComments(c *client.Client, issueID string) ([]Comment, error) {
+	params := url.Values{}
+	params.Set("fields", commentFields)
+	resp, err := c.Get("/api/issues/"+issueID+"/comments", params)
+	if err != nil {
+		return nil, fmt.Errorf("youtrack: get comments for %s: %w", issueID, err)
+	}
+	defer resp.Body.Close()
+	var comments []Comment
+	if err := json.NewDecoder(resp.Body).Decode(&comments); err != nil {
+		return nil, fmt.Errorf("youtrack: decode comments for %s: %w", issueID, err)
+	}
+	return comments, nil
+}
+
 type Issue struct {
 	ID           string        `json:"idReadable"`
 	Summary      string        `json:"summary"`

@@ -25,6 +25,7 @@ var issuesGetCmd = &cobra.Command{
 }
 
 var issuesSearchTop int
+var issueShowComments bool
 
 var issuesSearchCmd = &cobra.Command{
 	Use:   "search <query>",
@@ -45,6 +46,13 @@ func runGetIssue(id string) error {
 		return err
 	}
 	format.Issue(os.Stdout, issue)
+	if issueShowComments {
+		comments, err := youtrack.GetComments(c, id)
+		if err != nil {
+			return err
+		}
+		format.IssueComments(os.Stdout, comments)
+	}
 	return nil
 }
 
@@ -62,6 +70,7 @@ func runSearchIssues(query string, top int) error {
 }
 
 func init() {
+	issuesGetCmd.Flags().BoolVar(&issueShowComments, "comments", false, "Show issue comments")
 	issuesSearchCmd.Flags().IntVar(&issuesSearchTop, "top", 50, "Maximum number of results")
 	issuesCmd.AddCommand(issuesGetCmd)
 	issuesCmd.AddCommand(issuesSearchCmd)
