@@ -13,5 +13,6 @@ var issueCmd = &cobra.Command{
 
 func init() {
 	issueCmd.Flags().BoolVar(&issueShowComments, "comments", false, "Show issue comments")
+	issueCmd.Flags().BoolVar(&issueLinks, "links", false, "Also fetch and display issue links")
 	rootCmd.AddCommand(issueCmd)
 }

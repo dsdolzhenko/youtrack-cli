@@ -87,6 +87,44 @@ func IssueComments(w io.Writer, comments []youtrack.Comment) {
 	fmt.Fprintf(w, "%s\n", sep)
 }
 
+
+func IssueLinks(w io.Writer, links []youtrack.IssueLink) {
+	type row struct {
+		linkType string
+		relation string
+		id       string
+		summary  string
+	}
+	var rows []row
+	for _, link := range links {
+		rel := link.RelationName()
+		for _, issue := range link.Issues {
+			rows = append(rows, row{link.LinkType.Name, rel, issue.ID, issue.Summary})
+		}
+	}
+	if len(rows) == 0 {
+		return
+	}
+
+	typeW, relW, idW := 0, 0, 0
+	for _, r := range rows {
+		if len(r.linkType) > typeW {
+			typeW = len(r.linkType)
+		}
+		if len(r.relation) > relW {
+			relW = len(r.relation)
+		}
+		if len(r.id) > idW {
+			idW = len(r.id)
+		}
+	}
+
+	fmt.Fprintf(w, "\nLinks:\n")
+	for _, r := range rows {
+		fmt.Fprintf(w, "  %-*s  %-*s  %-*s  %s\n", typeW, r.linkType, relW, r.relation, idW, r.id, r.summary)
+	}
+}
+
 func customFieldValue(issue youtrack.Issue, name string) string {
 	for _, cf := range issue.CustomFields {
 		if cf.Name == name {
