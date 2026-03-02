@@ -47,6 +47,28 @@ func runGetIssue(id string) error {
 	if err != nil {
 		return err
 	}
+
+	if jsonOutput {
+		result := struct {
+			*youtrack.Issue
+			Comments []youtrack.Comment  `json:"comments,omitempty"`
+			Links    []youtrack.IssueLink `json:"links,omitempty"`
+		}{Issue: issue}
+		if issueShowComments {
+			result.Comments, err = youtrack.GetComments(c, id)
+			if err != nil {
+				return err
+			}
+		}
+		if issueLinks {
+			result.Links, err = youtrack.GetIssueLinks(c, id)
+			if err != nil {
+				return err
+			}
+		}
+		return writeJSON(result)
+	}
+
 	format.Issue(os.Stdout, issue)
 
 	if issueShowComments {
@@ -76,6 +98,9 @@ func runSearchIssues(query string, top int) error {
 	issues, err := youtrack.SearchIssues(c, query, top)
 	if err != nil {
 		return err
+	}
+	if jsonOutput {
+		return writeJSON(issues)
 	}
 	format.IssueList(os.Stdout, issues)
 	return nil

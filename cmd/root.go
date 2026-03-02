@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	serverURL string
-	token     string
+	serverURL  string
+	token      string
+	jsonOutput bool
 )
 
 var rootCmd = &cobra.Command{
@@ -35,6 +36,13 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&serverURL, "url", "", "YouTrack server URL (env: YOUTRACK_URL)")
 	rootCmd.PersistentFlags().StringVar(&token, "token", "", "YouTrack API token (env: YOUTRACK_TOKEN)")
+	rootCmd.PersistentFlags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
+}
+
+func writeJSON(v any) error {
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(v)
 }
 
 func checkConfig() error {

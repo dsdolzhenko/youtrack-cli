@@ -45,7 +45,7 @@ type Issue struct {
 	Updated      int64         `json:"updated"`
 	Resolved     int64         `json:"resolved"`
 	Reporter     User          `json:"reporter"`
-	CustomFields []CustomField
+	CustomFields []CustomField `json:"customFields"`
 }
 
 type issueRaw struct {
