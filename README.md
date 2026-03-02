@@ -4,6 +4,14 @@ CLI utility to access YouTrack that is designed to be used both by humans and LL
 
 ## Installation
 
+Using homebrew:
+
+```sh
+brew install dsdolzhenko/tools/youtrack-cli
+```
+
+With `go install`:
+
 ```sh
 go install github.com/dsdolzhenko/youtrack-cli@latest
 ```
