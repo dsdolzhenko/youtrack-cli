@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -25,6 +26,7 @@ var issuesGetCmd = &cobra.Command{
 }
 
 var issuesSearchTop int
+var issuesSearchIDs bool
 var issueShowComments bool
 
 var issuesSearchCmd = &cobra.Command{
@@ -99,6 +101,12 @@ func runSearchIssues(query string, top int) error {
 	if err != nil {
 		return err
 	}
+	if issuesSearchIDs {
+		for _, issue := range issues {
+			fmt.Fprintln(os.Stdout, issue.ID)
+		}
+		return nil
+	}
 	if jsonOutput {
 		return writeJSON(issues)
 	}
@@ -110,6 +118,7 @@ func init() {
 	issuesGetCmd.Flags().BoolVar(&issueShowComments, "comments", false, "Show issue comments")
 	issuesGetCmd.Flags().BoolVar(&issueLinks, "links", false, "Also fetch and display issue links")
 	issuesSearchCmd.Flags().IntVar(&issuesSearchTop, "top", 50, "Maximum number of results")
+	issuesSearchCmd.Flags().BoolVar(&issuesSearchIDs, "ids", false, "Print only issue IDs, one per line")
 	issuesCmd.AddCommand(issuesGetCmd)
 	issuesCmd.AddCommand(issuesSearchCmd)
 	rootCmd.AddCommand(issuesCmd)

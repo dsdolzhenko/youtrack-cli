@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -25,6 +26,7 @@ var articlesGetCmd = &cobra.Command{
 }
 
 var articlesSearchTop int
+var articlesSearchIDs bool
 
 var articlesSearchCmd = &cobra.Command{
 	Use:   "search <query>",
@@ -60,6 +62,12 @@ func runSearchArticles(query string, top int) error {
 	if err != nil {
 		return err
 	}
+	if articlesSearchIDs {
+		for _, article := range articles {
+			fmt.Fprintln(os.Stdout, article.ID)
+		}
+		return nil
+	}
 	if jsonOutput {
 		return writeJSON(articles)
 	}
@@ -69,6 +77,7 @@ func runSearchArticles(query string, top int) error {
 
 func init() {
 	articlesSearchCmd.Flags().IntVar(&articlesSearchTop, "top", 50, "Maximum number of results")
+	articlesSearchCmd.Flags().BoolVar(&articlesSearchIDs, "ids", false, "Print only article IDs, one per line")
 	articlesCmd.AddCommand(articlesGetCmd)
 	articlesCmd.AddCommand(articlesSearchCmd)
 	rootCmd.AddCommand(articlesCmd)
