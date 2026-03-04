@@ -7,15 +7,16 @@ user-invocable: true
 
 # YouTrack skill
 
-You have access to a `yt` CLI for read-only YouTrack access.
+You have access to a `yt` CLI for YouTrack access.
 
 ## Commands
 
 ```bash
-yt issue <ID>                           # Get a single issue (e.g. yt issue SP-42)
-yt article <ID>                         # Get a single article
-yt issues search "<query>" [--top N]    # Search issues (default --top 50)
-yt articles search "<query>" [--top N]  # Search articles
+yt issue <ID>                                      # Get a single issue (e.g. yt issue SP-42)
+yt article <ID>                                    # Get a single article
+yt issues search "<query>" [--top N]               # Search issues (default --top 50)
+yt articles search "<query>" [--top N]             # Search articles
+yt command <ID> "<command>" [--comment ""] [--silent]  # Apply a YouTrack command to an issue
 ```
 
 ## Configuration
@@ -40,6 +41,18 @@ If a command fails with "server URL is required" or "token is required", tell th
 **Single article** — header (Project, Reporter, dates), then full Markdown content.
 
 **Article list** — columns: ID · SUMMARY · PROJECT · REPORTER.
+
+## Commands guide
+
+Use `yt command` to apply YouTrack commands (change state, assign, tag, etc.):
+
+```bash
+yt command SP-42 "state Fixed"
+yt command SP-42 "for me"
+yt command SP-42 "tag needs-review" --comment "Please review" --silent
+```
+
+`--silent` suppresses YouTrack notifications. `--comment` attaches a comment alongside the command.
 
 ## Behaviour when invoked as `/youtrack $ARGUMENTS`
 

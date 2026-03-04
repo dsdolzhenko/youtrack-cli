@@ -17,7 +17,7 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use:   "yt",
-	Short: "YouTrack CLI — read-only access to YouTrack issues and articles",
+	Short: "YouTrack CLI — access YouTrack from command line and agents",
 }
 
 func Execute(version string) {

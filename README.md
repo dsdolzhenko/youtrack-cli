@@ -1,6 +1,6 @@
 # YouTrack CLI (yt)
 
-CLI utility to access YouTrack that is designed to be used both by humans and LLMs.
+CLI utility to access YouTrack.
 
 ## Installation
 
@@ -111,3 +111,22 @@ SP-43     Add dark mode                                  In Progress    Jane Doe
 
 **Flags:**
 - `--top N` — maximum number of results (default: 50)
+
+### `yt command <ID> "<command>"`
+
+Apply a [YouTrack command](https://www.jetbrains.com/help/youtrack/server/youtrack-command-syntax-reference.html) to an issue.
+
+```
+$ yt command SP-42 "state Fixed"
+Command applied to SP-42
+
+$ yt command SP-42 "for me"
+Command applied to SP-42
+
+$ yt command SP-42 "tag needs-review" --comment "Please review" --silent
+Command applied to SP-42
+```
+
+**Flags:**
+- `--comment "..."` — attach a comment alongside the command
+- `--silent` — apply the command without sending YouTrack notifications

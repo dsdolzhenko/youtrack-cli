@@ -1,6 +1,7 @@
 package client
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -71,6 +72,49 @@ func TestGet_NonOKStatusReturnsError(t *testing.T) {
 				t.Errorf("error %q does not mention status text %q", err.Error(), http.StatusText(code))
 			}
 		})
+	}
+}
+
+func TestPost_SetsHeaders(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("method = %q, want POST", r.Method)
+		}
+		if r.Header.Get("Authorization") != "Bearer tok" {
+			t.Errorf("Authorization = %q, want %q", r.Header.Get("Authorization"), "Bearer tok")
+		}
+		if r.Header.Get("Content-Type") != "application/json" {
+			t.Errorf("Content-Type = %q, want application/json", r.Header.Get("Content-Type"))
+		}
+		body, _ := io.ReadAll(r.Body)
+		if string(body) != `{"key":"val"}` {
+			t.Errorf("body = %q, want %q", body, `{"key":"val"}`)
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	c := New(Config{BaseURL: srv.URL, Token: "tok"})
+	resp, err := c.Post("/api/commands", strings.NewReader(`{"key":"val"}`))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	resp.Body.Close()
+}
+
+func TestPost_NonOKStatusReturnsError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+	}))
+	defer srv.Close()
+
+	c := New(Config{BaseURL: srv.URL, Token: "tok"})
+	_, err := c.Post("/api/commands", strings.NewReader(`{}`))
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), http.StatusText(http.StatusBadRequest)) {
+		t.Errorf("error %q does not mention status text", err.Error())
 	}
 }
 
