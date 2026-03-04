@@ -19,7 +19,7 @@ var issuesCmd = &cobra.Command{
 var issuesGetCmd = &cobra.Command{
 	Use:   "get <ID>",
 	Short: "Show a single issue",
-	Args:  cobra.ExactArgs(1),
+	Args:  requireArgs("ID"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGetIssue(args[0])
 	},
@@ -32,7 +32,7 @@ var issueShowComments bool
 var issuesSearchCmd = &cobra.Command{
 	Use:   "search <query>",
 	Short: "Search issues using YouTrack query language",
-	Args:  cobra.ExactArgs(1),
+	Args:  requireArgs("query"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSearchIssues(args[0], issuesSearchTop)
 	},

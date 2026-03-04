@@ -19,7 +19,7 @@ var articlesCmd = &cobra.Command{
 var articlesGetCmd = &cobra.Command{
 	Use:   "get <ID>",
 	Short: "Show a single article",
-	Args:  cobra.ExactArgs(1),
+	Args:  requireArgs("ID"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGetArticle(args[0])
 	},
@@ -31,7 +31,7 @@ var articlesSearchIDs bool
 var articlesSearchCmd = &cobra.Command{
 	Use:   "search <query>",
 	Short: "Search articles using YouTrack query language",
-	Args:  cobra.ExactArgs(1),
+	Args:  requireArgs("query"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSearchArticles(args[0], articlesSearchTop)
 	},

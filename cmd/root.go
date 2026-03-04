@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -19,7 +20,6 @@ var rootCmd = &cobra.Command{
 	Use:          "yt",
 	Short:        "YouTrack CLI — access YouTrack from command line and agents",
 	SilenceErrors: true,
-	SilenceUsage:  true,
 }
 
 func Execute(version string) {
@@ -32,6 +32,9 @@ func Execute(version string) {
 
 func init() {
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		// Silence usage for runtime errors; args validation errors still show it
+		// because PersistentPreRunE runs after args validation but before RunE.
+		cmd.SilenceUsage = true
 		loadConfig()
 		return nil
 	}
@@ -45,6 +48,25 @@ func writeJSON(v any) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	return enc.Encode(v)
+}
+
+func requireArgs(names ...string) cobra.PositionalArgs {
+	return func(cmd *cobra.Command, args []string) error {
+		if len(args) == len(names) {
+			return nil
+		}
+		if len(args) > len(names) {
+			return fmt.Errorf("accepts %d argument(s), received %d", len(names), len(args))
+		}
+		missing := make([]string, len(names)-len(args))
+		for i, n := range names[len(args):] {
+			missing[i] = "<" + n + ">"
+		}
+		if len(missing) == 1 {
+			return fmt.Errorf("missing required argument %s", missing[0])
+		}
+		return fmt.Errorf("missing required arguments %s", strings.Join(missing, " and "))
+	}
 }
 
 func checkConfig() error {

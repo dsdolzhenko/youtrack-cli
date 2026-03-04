@@ -5,7 +5,7 @@ import "github.com/spf13/cobra"
 var issueCmd = &cobra.Command{
 	Use:   "issue <ID>",
 	Short: "Show a single issue (shortcut for 'issues get')",
-	Args:  cobra.ExactArgs(1),
+	Args:  requireArgs("ID"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGetIssue(args[0])
 	},

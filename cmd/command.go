@@ -15,7 +15,7 @@ var commandSilent bool
 var commandCmd = &cobra.Command{
 	Use:   "command <ID> <command>",
 	Short: "Apply a YouTrack command to an issue",
-	Args:  cobra.ExactArgs(2),
+	Args:  requireArgs("ID", "command"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runCommand(args[0], args[1], commandComment, commandSilent)
 	},
