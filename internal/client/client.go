@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -48,8 +49,7 @@ func (c *Client) Get(path string, params url.Values) (*http.Response, error) {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		resp.Body.Close()
-		return nil, fmt.Errorf("client: unexpected status %d %s for %s", resp.StatusCode, http.StatusText(resp.StatusCode), rawURL)
+		return nil, errorFromResponse(resp, rawURL)
 	}
 
 	return resp, nil
@@ -74,9 +74,22 @@ func (c *Client) Post(path string, body io.Reader) (*http.Response, error) {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		resp.Body.Close()
-		return nil, fmt.Errorf("client: unexpected status %d %s for %s", resp.StatusCode, http.StatusText(resp.StatusCode), rawURL)
+		return nil, errorFromResponse(resp, rawURL)
 	}
 
 	return resp, nil
+}
+
+func errorFromResponse(resp *http.Response, rawURL string) error {
+	body, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+
+	var apiErr struct {
+		Description string `json:"error_description"`
+	}
+	if json.Unmarshal(body, &apiErr) == nil && apiErr.Description != "" {
+		return fmt.Errorf("%s", apiErr.Description)
+	}
+
+	return fmt.Errorf("client: unexpected status %d %s for %s", resp.StatusCode, http.StatusText(resp.StatusCode), rawURL)
 }

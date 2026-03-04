@@ -16,8 +16,10 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "yt",
-	Short: "YouTrack CLI — access YouTrack from command line and agents",
+	Use:          "yt",
+	Short:        "YouTrack CLI — access YouTrack from command line and agents",
+	SilenceErrors: true,
+	SilenceUsage:  true,
 }
 
 func Execute(version string) {

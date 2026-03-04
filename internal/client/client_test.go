@@ -118,6 +118,24 @@ func TestPost_NonOKStatusReturnsError(t *testing.T) {
 	}
 }
 
+func TestPost_ErrorDescriptionIncludedInError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error":"Bad Request","error_description":"Command 'xyz' is not recognized"}`))
+	}))
+	defer srv.Close()
+
+	c := New(Config{BaseURL: srv.URL, Token: "tok"})
+	_, err := c.Post("/api/commands", strings.NewReader(`{}`))
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if err.Error() != "Command 'xyz' is not recognized" {
+		t.Errorf("error = %q, want %q", err.Error(), "Command 'xyz' is not recognized")
+	}
+}
+
 func TestGet_TrailingSlashBaseURL(t *testing.T) {
 	var gotPath string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
