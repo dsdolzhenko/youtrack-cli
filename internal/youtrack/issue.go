@@ -46,6 +46,7 @@ type Issue struct {
 	Resolved     int64         `json:"resolved"`
 	Reporter     User          `json:"reporter"`
 	CustomFields []CustomField `json:"customFields"`
+	Attachments  []Attachment  `json:"attachments"`
 }
 
 type issueRaw struct {
@@ -57,11 +58,13 @@ type issueRaw struct {
 	Resolved     int64             `json:"resolved"`
 	Reporter     User              `json:"reporter"`
 	CustomFields []json.RawMessage `json:"customFields"`
+	Attachments  []Attachment      `json:"attachments"`
 }
 
 const issueFields = "id,idReadable,summary,description,created,updated,resolved," +
 	"reporter(login,fullName)," +
-	"customFields($type,name,value($type,name,login,fullName,text,presentation,isResolved,minutes))"
+	"customFields($type,name,value($type,name,login,fullName,text,presentation,isResolved,minutes))," +
+	"attachments(id,name,url,size,mimeType,created,author(login))"
 
 const searchFields = "id,idReadable,summary,resolved," +
 	"reporter(login,fullName)," +
@@ -91,6 +94,7 @@ func GetIssue(c *client.Client, id string) (*Issue, error) {
 		Resolved:     raw.Resolved,
 		Reporter:     raw.Reporter,
 		CustomFields: DecodeCustomFields(raw.CustomFields),
+		Attachments:  raw.Attachments,
 	}, nil
 }
 

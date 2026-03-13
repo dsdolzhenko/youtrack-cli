@@ -12,11 +12,12 @@ You have access to a `yt` CLI for YouTrack access.
 ## Commands
 
 ```bash
-yt issue <ID>                                      # Get a single issue (e.g. yt issue SP-42)
-yt article <ID>                                    # Get a single article
-yt issues search "<query>" [--top N]               # Search issues (default --top 50)
-yt articles search "<query>" [--top N]             # Search articles
+yt issue <ID>                                          # Get a single issue (e.g. yt issue SP-42)
+yt article <ID>                                        # Get a single article
+yt issues search "<query>" [--top N]                   # Search issues (default --top 50)
+yt articles search "<query>" [--top N]                 # Search articles
 yt command <ID> "<command>" [--comment ""] [--silent]  # Apply a YouTrack command to an issue
+yt issues attachments <ID> [name...] [--dir <dir>]     # Download attachments (default dir: .)
 ```
 
 ## Configuration
@@ -34,7 +35,7 @@ If a command fails with "server URL is required" or "token is required", tell th
 
 ## Output formats
 
-**Single issue** — header fields (Reporter, dates), custom fields (Priority, State, Assignee, Sprint, etc.), then full description.
+**Single issue** — header fields (Reporter, dates), custom fields (Priority, State, Assignee, Sprint, etc.), full description, then attachment table (NAME · SIZE · MIME TYPE · AUTHOR · CREATED) if any attachments exist.
 
 **Issue list** — columns: ID · SUMMARY (≤50 chars) · STATE · ASSIGNEE.
 
@@ -53,6 +54,20 @@ yt command SP-42 "tag needs-review" --comment "Please review" --silent
 ```
 
 `--silent` suppresses YouTrack notifications. `--comment` attaches a comment alongside the command.
+
+## Attachments guide
+
+`yt issue <ID>` lists attachments at the bottom of the output when present.
+
+To download attachments:
+
+```bash
+yt issues attachments SP-42 --dir ./files          # download all attachments to ./files/
+yt issues attachments SP-42 schema.yaml            # download one file to current directory
+yt issues attachments SP-42 a.pdf b.png --dir /tmp # download specific files
+```
+
+If the specified names don't match any attachment, the command errors.
 
 ## Behaviour when invoked as `/youtrack $ARGUMENTS`
 

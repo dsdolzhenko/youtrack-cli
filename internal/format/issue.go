@@ -26,6 +26,17 @@ func terminalWidth() int {
 	return 80
 }
 
+func formatSize(bytes int64) string {
+	switch {
+	case bytes >= 1024*1024:
+		return fmt.Sprintf("%.1f MB", float64(bytes)/(1024*1024))
+	case bytes >= 1024:
+		return fmt.Sprintf("%.1f KB", float64(bytes)/1024)
+	default:
+		return fmt.Sprintf("%d B", bytes)
+	}
+}
+
 func fieldWidth(fields []youtrack.CustomField) int {
 	w := 8
 	for _, f := range fields {
@@ -66,6 +77,42 @@ func Issue(w io.Writer, issue *youtrack.Issue) {
 		for _, line := range strings.Split(issue.Description, "\n") {
 			fmt.Fprintf(w, "  %s\n", line)
 		}
+	}
+
+	IssueAttachments(w, issue.Attachments)
+}
+
+func IssueAttachments(w io.Writer, attachments []youtrack.Attachment) {
+	if len(attachments) == 0 {
+		return
+	}
+
+	nameW, sizeW, mimeW, authorW := len("NAME"), len("SIZE"), len("MIME TYPE"), len("AUTHOR")
+	for _, a := range attachments {
+		if n := len(a.Name); n > nameW {
+			nameW = n
+		}
+		if s := len(formatSize(a.Size)); s > sizeW {
+			sizeW = s
+		}
+		if m := len(a.MimeType); m > mimeW {
+			mimeW = m
+		}
+		if u := len(a.Author.Login); u > authorW {
+			authorW = u
+		}
+	}
+
+	fmt.Fprintf(w, "\nAttachments (%d):\n", len(attachments))
+	fmt.Fprintf(w, "  %-*s  %-*s  %-*s  %-*s  %s\n", nameW, "NAME", sizeW, "SIZE", mimeW, "MIME TYPE", authorW, "AUTHOR", "CREATED")
+	for _, a := range attachments {
+		fmt.Fprintf(w, "  %-*s  %-*s  %-*s  %-*s  %s\n",
+			nameW, a.Name,
+			sizeW, formatSize(a.Size),
+			mimeW, a.MimeType,
+			authorW, a.Author.Login,
+			formatMillis(a.Created),
+		)
 	}
 }
 

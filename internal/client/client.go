@@ -16,14 +16,16 @@ type Config struct {
 }
 
 type Client struct {
-	cfg  Config
-	http *http.Client
+	cfg     Config
+	http    *http.Client
+	httpRaw *http.Client
 }
 
 func New(cfg Config) *Client {
 	return &Client{
-		cfg:  cfg,
-		http: &http.Client{Timeout: 10 * time.Second},
+		cfg:     cfg,
+		http:    &http.Client{Timeout: 10 * time.Second},
+		httpRaw: &http.Client{},
 	}
 }
 
@@ -69,6 +71,29 @@ func (c *Client) Post(path string, body io.Reader) (*http.Response, error) {
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("client: do request: %w", err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, errorFromResponse(resp, rawURL)
+	}
+
+	return resp, nil
+}
+
+func (c *Client) GetRaw(path string) (*http.Response, error) {
+	base := strings.TrimRight(c.cfg.BaseURL, "/")
+	rawURL := base + "/" + strings.TrimLeft(path, "/")
+
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("client: build request: %w", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+c.cfg.Token)
+
+	resp, err := c.httpRaw.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("client: do request: %w", err)
 	}
